@@ -5,7 +5,7 @@ import userModel from '../models/userModel.js'
 //http://localhost:4000/api/user/webhooks
 const clerkWebhooks = async (req,res) => {
     try {
-        //Create a Savix instance with clerk webhook secret.
+        //Create a Svix instance with clerk webhook secret.
         const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET)
 
         await whook.verify(JSON.stringify(req.body), {
@@ -21,7 +21,7 @@ const clerkWebhooks = async (req,res) => {
 
                 const userData = {
                     clerkId: data.id,
-                    email: data.email_addresses[0].emial_address,
+                    email: data.email_addresses[0].email_address,
                     firstName: data.first_name,
                     lastName: data.last_name,
                     photo: data.image_url
@@ -34,7 +34,7 @@ const clerkWebhooks = async (req,res) => {
             case "user.updated":{
 
                  const userData = {
-                    email: data.email_addresses[0].emial_address,
+                    email: data.email_addresses[0].email_address,
                     firstName: data.first_name,
                     lastName: data.last_name,
                     photo: data.image_url
