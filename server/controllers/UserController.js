@@ -89,12 +89,10 @@ const userCredits = async (req, res) => {
     }
 }
 
-//gateway initialize
-const stripeInstance = new Stripe(process.env.STRIPE_KEY_SECRET)
-
 //API to make payment for credits
 const paymentStripe = async (req, res) => {
     try {
+        const stripeInstance = new Stripe(process.env.STRIPE_KEY_SECRET)
         const { planId } = req.body
         const clerkId = req.clerkId
         const userData = await userModel.findOne({ clerkId })
@@ -154,7 +152,7 @@ const paymentStripe = async (req, res) => {
                 quantity: 1,
             }],
             mode: 'payment',
-            success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/buy`,
+            success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/cancel`,
             metadata: {
                 clerkId,
@@ -171,6 +169,47 @@ const paymentStripe = async (req, res) => {
     }
 }
 
+//API to verify payment and update credits
+const verifyPayment = async (req, res) => {
+    try {
+        const stripeInstance = new Stripe(process.env.STRIPE_KEY_SECRET)
+        const { sessionId } = req.body
+        const clerkId = req.clerkId
+
+        if (!sessionId) {
+            return res.json({ success: false, message: 'Session ID is required' })
+        }
+
+        const session = await stripeInstance.checkout.sessions.retrieve(sessionId)
+
+        if (session.payment_status === 'paid') {
+            const transactionId = session.metadata.transactionId
+
+            //Update transaction status
+            await transactionModel.findByIdAndUpdate(transactionId, { payment: true })
+
+            //Update user credits
+            const userData = await userModel.findOne({ clerkId })
+            const transaction = await transactionModel.findById(transactionId)
+
+            if (userData && transaction) {
+                await userModel.findByIdAndUpdate(userData._id, {
+                    creditBalance: userData.creditBalance + transaction.credits
+                })
+
+                return res.json({ success: true, message: 'Credits updated successfully' })
+            } else {
+                return res.json({ success: false, message: 'User or transaction not found' })
+            }
+        } else {
+            return res.json({ success: false, message: 'Payment not completed' })
+        }
+
+    } catch (error) {
+        console.log(error.message)
+        res.json({ success: false, message: error.message })
+    }
+}
 
 
-export { clerkWebhooks, userCredits, paymentStripe }
+export { clerkWebhooks, userCredits, paymentStripe, verifyPayment }
