@@ -1,8 +1,33 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { assets, plans } from '../assets/assets'
+import { AppContext } from '../context/AppContext'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@clerk/react'
+import { toast } from 'react-toastify'
+import axios from 'axios'
 
 const BuyCredit = () => {
   const uniquePlans = [...new Map(plans.map((item) => [item.id, item])).values()]
+  const { backendUrl, loadCreditsData } = useContext(AppContext)
+  const navigate = useNavigate()
+  const { getToken } = useAuth()
+  const initpay = async (order) => {
+    window.location.href = order.session_url
+  }
+
+  const paymentStripe = async (planId) => {
+    try {
+      const token = await getToken()
+      const { data } = await axios.post(backendUrl+ '/api/user/pay-stripe',{planId},{headers:{token}})
+      if(data.success){
+        initpay(data.order)
+      }
+    } catch (error) {
+      console.log(error)
+      toast.error(error.message)
+    }
+  }
+
 
   return (
     <div className='min-h-[80vh] text-center pt-14 mb-10'>
@@ -17,7 +42,7 @@ const BuyCredit = () => {
             <p className='mt-6'>
               <span className='text-3xl font-medium'>${item.price}</span>/{item.credits} credits
             </p>
-            <button className='w-full bg-gray-800 text-white mt-8 text-sm rounded-md py-2.5 min-w-52'>Purchase</button>
+            <button onClick={()=>paymentStripe(item.id)} className='w-full bg-gray-800 text-white mt-8 text-sm rounded-md py-2.5 min-w-52'>Purchase</button>
           </div>
         ))}
       </div>
