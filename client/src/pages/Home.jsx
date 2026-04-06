@@ -5,7 +5,7 @@ import BgSlider from '../components/BgSlider'
 import Testimonials from '../components/Testimonials'
 import Upload from '../components/Upload'
 import { AppContext } from '../context/AppContext'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '@clerk/react'
 import { toast } from 'react-toastify'
 import axios from 'axios'
@@ -14,6 +14,7 @@ const Home = () => {
   const { backendUrl, loadCreditsData } = useContext(AppContext)
   const { getToken } = useAuth()
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const verifyAndUpdateCredits = async () => {
@@ -31,11 +32,13 @@ const Home = () => {
         } catch (error) {
           console.log(error)
           toast.error(error.message)
+        } finally {
+          navigate('/', { replace: true })
         }
       }
     }
     verifyAndUpdateCredits()
-  }, [searchParams, backendUrl, getToken])
+  }, [searchParams, backendUrl, getToken, navigate, loadCreditsData])
 
   return (
     <div>

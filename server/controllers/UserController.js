@@ -184,22 +184,30 @@ const verifyPayment = async (req, res) => {
 
         if (session.payment_status === 'paid') {
             const transactionId = session.metadata.transactionId
+            const transaction = await transactionModel.findById(transactionId)
+
+            if (!transaction) {
+                return res.json({ success: false, message: 'Transaction not found' })
+            }
+
+            if (transaction.payment) {
+                return res.json({ success: true, message: 'Credits already updated' })
+            }
 
             //Update transaction status
             await transactionModel.findByIdAndUpdate(transactionId, { payment: true })
 
             //Update user credits
             const userData = await userModel.findOne({ clerkId })
-            const transaction = await transactionModel.findById(transactionId)
 
-            if (userData && transaction) {
+            if (userData) {
                 await userModel.findByIdAndUpdate(userData._id, {
                     creditBalance: userData.creditBalance + transaction.credits
                 })
 
                 return res.json({ success: true, message: 'Credits updated successfully' })
             } else {
-                return res.json({ success: false, message: 'User or transaction not found' })
+                return res.json({ success: false, message: 'User not found' })
             }
         } else {
             return res.json({ success: false, message: 'Payment not completed' })
