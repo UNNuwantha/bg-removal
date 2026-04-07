@@ -10,6 +10,16 @@
 
 A modern, full-stack web application for automatic background removal from images using AI-powered technology. Built with React, Node.js, and integrated with the remove.bg API.
 
+![image alt](https://github.com/UNNuwantha/bg-removal/blob/master/client/src/assets/img01.png?raw=true)
+![image alt](https://github.com/UNNuwantha/bg-removal/blob/master/client/src/assets/img02.png?raw=true)
+![image alt](https://github.com/UNNuwantha/bg-removal/blob/master/client/src/assets/img03.png?raw=true)
+![image alt](https://github.com/UNNuwantha/bg-removal/blob/master/client/src/assets/img04.png?raw=true)
+![image alt](https://github.com/UNNuwantha/bg-removal/blob/master/client/src/assets/img05.png?raw=true)
+![image alt](https://github.com/UNNuwantha/bg-removal/blob/master/client/src/assets/img06.png?raw=true)
+![image alt](https://github.com/UNNuwantha/bg-removal/blob/master/client/src/assets/img07.png?raw=true)
+![image alt](https://github.com/UNNuwantha/bg-removal/blob/master/client/src/assets/img08.png?raw=true)
+
+
 ## ✨ Features
 
 - 🚀 **Fast Background Removal**: Powered by remove.bg API for high-quality results
